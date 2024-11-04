@@ -9,14 +9,15 @@
 1. Clone the repository:
 
    ```bash
-   git clone <repository-url>
-   cd project-root
-
+   git clone https://github.com/marcpfrancisco/website-builder.git
+   cd website-builder
    ```
 
 2. Start the application:
 
-   - docker-compose up --build
+   ```bash
+   docker compose up --build
+   ```
 
 3. Access the services:
 
