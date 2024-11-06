@@ -2,10 +2,20 @@ import axiosInstance from '@/lib/axiosInstance';
 
 export const getCurrentUser = async () => {
   try {
-    const response = (await axiosInstance.get('/user')) || null; // The full URL will be formed with the base URL
-    return response.data;
+    // This would be the API call to your backend once it's ready
+    // const response = await axiosInstance.get('/user');
+    // return response.data;
+
+    return {
+      user: 'Marc P',
+      token: 'uisgdfi9q236487q2[asdf',
+    };
   } catch (error) {
     console.error('Error fetching user data:', error);
-    throw error;
+    // Return fake data in case of error, or fallback to null
+    return {
+      user: 'Marc P',
+      token: 'uisgdfi9q236487q2[asdf',
+    };
   }
 };
