@@ -24,6 +24,7 @@ const EditorComponent = () => {
   useEffect(() => {
     const editorInstance = grapesjs.init({
       container: '#gjs',
+      height: '100vh',
       plugins: [
         gjsPresetWebpage,
         gjsPresetBasic,
@@ -75,13 +76,7 @@ const EditorComponent = () => {
     };
   }, []);
 
-  return (
-    <div
-      id="gjs"
-      className="h-full box-border flex-1"
-      style={{ height: '100%', width: '100%' }}
-    />
-  );
+  return <div id="gjs" style={{ height: '100vh', width: '100%' }} />;
 };
 
 export default EditorComponent;
