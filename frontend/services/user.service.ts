@@ -1,9 +1,14 @@
 import axiosInstance from '@/lib/axiosInstance';
 
-export const getCurrentUser = async () => {
+export const getCurrentUser = async (token: string | null) => {
   try {
     // This would be the API call to your backend once it's ready
-    // const response = await axiosInstance.get('/user');
+    // const response = await axiosInstance.get('/user', {
+    //   headers: {
+    //     Authorization: `Bearer ${token}`,
+    //   },
+    // });
+
     // return response.data;
 
     return {

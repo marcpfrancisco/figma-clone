@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import grapesjs, { Editor } from 'grapesjs';
 import gjsPresetBasic from 'grapesjs-blocks-basic';
@@ -16,67 +16,140 @@ import gjsPresetStyleBg from 'grapesjs-style-bg';
 import gjsPresetStyleGradient from 'grapesjs-style-gradient';
 import gjsPresetTooltip from 'grapesjs-tooltip';
 
-import { BlockWithCategory } from '@/types';
-
 const EditorComponent = () => {
   const [editor, setEditor] = useState<Editor | null>(null);
+  const editorRef = useRef<Editor | null>(null);
 
   useEffect(() => {
-    const editorInstance = grapesjs.init({
-      container: '#gjs',
-      height: '100vh',
-      plugins: [
-        gjsPresetWebpage,
-        gjsPresetBasic,
-        gjsPresetComponentCountdown,
-        gjsPresetCustomCode,
-        gjsPresetNavbar,
-        gjsPresetStyleBg,
-        gjsPresetNewsLetter,
-        gjsPresetExport,
-        gjsPresetStyleGradient,
-        gjsPresetBlocksFlexbox,
-        gjsPresetForms,
-        gjsPresetTooltip,
-      ],
-      pluginsOpts: {
-        gjsPresetWebpage: {},
-      },
-    });
+    if (!editorRef.current) {
+      const editorInstance = grapesjs.init({
+        container: '#gjs',
+        height: '100%',
+        storageManager: false,
+        plugins: [
+          gjsPresetWebpage,
+          gjsPresetBasic,
+          gjsPresetComponentCountdown,
+          gjsPresetCustomCode,
+          gjsPresetNavbar,
+          gjsPresetStyleBg,
+          gjsPresetNewsLetter,
+          gjsPresetExport,
+          gjsPresetStyleGradient,
+          gjsPresetBlocksFlexbox,
+          gjsPresetForms,
+          gjsPresetTooltip,
+        ],
+        pluginsOpts: {
+          gjsPresetWebpage: {},
+        },
+        blockManager: {
+          appendTo: '#blocks',
+        },
+      });
 
-    setEditor(editorInstance);
+      const page = localStorage.getItem('Page') || '';
+      const savedContent = JSON.parse(page);
 
-    // Categorize blocks using the block manager
-    const blocks = editorInstance.BlockManager.getAll();
-    blocks.forEach((block: BlockWithCategory) => {
-      const category = block.get('category');
-
-      if (category === 'Basic') {
-        block.set('category', {
-          id: 'layout',
-          label: 'Layout',
-        });
-      } else if (category === 'Form') {
-        block.set('category', {
-          id: 'forms',
-          label: 'Forms',
-        });
-      } else if (category === 'Media') {
-        block.set('category', {
-          id: 'media',
-          label: 'Media',
-        });
+      if (savedContent) {
+        editorInstance.setComponents(savedContent.components);
       }
-      // Add additional categories as needed
-    });
+
+      editorRef.current = editorInstance;
+      setEditor(editorInstance);
+    }
 
     // Optionally return a cleanup function here if needed, but do not return JSX
     return () => {
-      editorInstance.destroy();
+      editorRef.current?.destroy();
+      editorRef.current = null;
     };
   }, []);
 
-  return <div id="gjs" style={{ height: '100vh', width: '100%' }} />;
+  // Function to handle preview
+  const handlePreview = () => {
+    if (editorRef.current) {
+      const html = editorRef.current.getHtml(); // Get HTML from editorRef
+      const css = editorRef.current.getCss(); // Get CSS from editorRef
+
+      // Open new window for preview
+      const previewWindow = window.open('', '_blank');
+
+      // Write the content into the new window
+      if (previewWindow) {
+        previewWindow.document.open();
+        previewWindow.document.write(`
+        <html>
+          <head>
+            <style>${css}</style>
+          </head>
+          <body>${html}</body>
+        </html>
+      `);
+        previewWindow.document.close();
+      }
+    }
+  };
+
+  // Function to handle save
+  const handleSave = () => {
+    if (editorRef.current) {
+      const components = editorRef.current.getComponents();
+      const content = {
+        components: components.toJSON(),
+      };
+
+      // Store the HTML and CSS in localStorage
+      localStorage.setItem('Page', JSON.stringify(content));
+
+      alert('Template saved to local storage!');
+    }
+  };
+
+  return (
+    <div className="flex flex-col h-screen overflow-hidden">
+      <div className="flex items-center space-x-4 p-4 bg-gray-200">
+        {/* Preview button */}
+        <button
+          onClick={handlePreview}
+          className="p-2 bg-blue-500 text-white rounded"
+        >
+          Preview
+        </button>
+
+        {/* Save button */}
+        <button
+          onClick={handleSave}
+          className="p-2 bg-green-500 text-white rounded"
+        >
+          Save
+        </button>
+      </div>
+
+      {/* Blocks Panel - fixed width and scrollable */}
+      <div className="flex flex-row flex-1">
+        <div
+          id="blocks"
+          className="w-64 overflow-y-auto bg-white"
+          style={{
+            position: 'fixed',
+            left: 0,
+            top: '100px', // Starts below the navbar
+            height: 'calc(100vh - 100px)', // Height adjusted for navbar
+          }}
+        >
+          <h2 className="text-lg font-medium mb-4   ">Components</h2>
+        </div>
+
+        {/* Editor Panel - takes remaining space */}
+        <div
+          id="gjs"
+          className="flex-1 ml-64" // Account for the fixed width of blocks
+          style={{ height: '100%' }}
+        />
+      </div>
+    </div>
+  );
 };
 
 export default EditorComponent;

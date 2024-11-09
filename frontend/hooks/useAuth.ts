@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 
-import { getCurrentUser } from '@/services';
+import { getCurrentUser, login } from '@/services';
 import { User } from '@/types';
 
 export const useAuth = () => {
@@ -12,11 +12,26 @@ export const useAuth = () => {
   const pathName = usePathname();
   const router = useRouter();
 
+  const signIn = async (credentials: { email: string; password: string }) => {
+    const data = await login(credentials);
+    localStorage.setItem('token', data.access_token);
+    const profile = await getCurrentUser(data.access_token);
+    setUser(profile);
+  };
+
+  const signOut = () => {
+    localStorage.removeItem('token');
+    setUser(null);
+    router.push('/login');
+  };
+
   useEffect(() => {
+    const token = localStorage.getItem('token') || null;
+
     const fetchUser = async () => {
       try {
         // Replace this with your authentication logic to get the current user
-        const currentUser = await getCurrentUser();
+        const currentUser = await getCurrentUser(token);
         setUser(currentUser);
 
         // Redirect based on authentication state
@@ -41,5 +56,5 @@ export const useAuth = () => {
     fetchUser();
   }, [router]);
 
-  return { user, loading };
+  return { user, loading, signIn, signOut };
 };
