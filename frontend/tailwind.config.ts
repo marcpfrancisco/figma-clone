@@ -10,12 +10,17 @@ const config: Config = {
   plugins: [require('tailwindcss-animate')],
   theme: {
     extend: {
-      borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+      colors: {
+        blue: {
+          600: '#006FF9',
+        },
       },
-      colors: {},
+      fontFamily: {
+        sans: ['Gilroy', 'sans-serif'],
+      },
+      spacing: {
+        18: '4.5rem',
+      },
     },
   },
 };

@@ -6,7 +6,7 @@ export default function LayoutWrapper({
   children: React.ReactNode;
 }) {
   return (
-    <DefaultLayout classsName="w-full flex flex-col relative">
+    <DefaultLayout classsName="flex bg-gray-100 font-sans text-gray 900">
       {children}
     </DefaultLayout>
   );
