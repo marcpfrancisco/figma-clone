@@ -1,244 +1,78 @@
-import Accordion from '@/components/Accordion';
-import {
-  SaveIcon,
-  MonitorIcon,
-  ChevronDownIcon,
-  AlignStartVerticalIcon,
-  AlignCenterVerticalIcon,
-  AlignEndVerticalIcon,
-  AlignStartHorizontalIcon,
-  AlignCenterHorizontalIcon,
-  AlignEndHorizontalIcon,
-  EyeIcon,
-} from 'lucide-react';
-import React from 'react';
+'use client';
 
-const RightPanel = () => {
+import Color from '@/components/Settings/Color';
+import Dimensions from '@/components/Settings/Dimensions';
+import Export from '@/components/Settings/Export';
+import Text from '@/components/Settings/Text';
+import { modifyShape } from '@/lib/shapes';
+import { RightSidebarProps } from '@/types/type';
+
+import React, { useRef } from 'react';
+
+const RightPanel = ({
+  elementAttributes,
+  setElementAttributes,
+  fabricRef,
+  activeObjectRef,
+  isEditingRef,
+  syncShapeInStorage,
+}: RightSidebarProps) => {
+  const colorInputRef = useRef(null);
+  const strokeInputRef = useRef(null);
+
+  const handleInputChange = (property: string, value: string) => {
+    if (!isEditingRef.current) isEditingRef.current = true;
+
+    setElementAttributes((prev) => ({
+      ...prev,
+      [property]: value,
+    }));
+
+    modifyShape({
+      canvas: fabricRef.current as fabric.Canvas,
+      property,
+      value,
+      activeObjectRef,
+      syncShapeInStorage,
+    });
+  };
+
   return (
-    <section className="flex flex-col bg-white border-t border-gray-200 min-w-[227px] sticky left-0 h-full max-sm:hidden select-none overflow-y-auto pb-20">
-      <div className="flex h-18 items-center gap-x-4 border-b border-gray-200 px-6">
-        <button className="flex items-center justify-center gap-x-2 rounded-xl bg-gray-100 px-4 py-2">
-          <SaveIcon className="h-5 w-5 stroke-current text-gray-400" />
-          <span className="text-sm font-semibold leading-6">Save</span>
-        </button>
-        <button className="flex flex-1 items-center justify-center gap-x-2 rounded-xl bg-blue-600 px-4 py-2 font-semibold text-sm leading-6 text-white">
-          Save & Publish
-        </button>
-      </div>
+    <section className="flex flex-col border-t border-primary-grey-200 bg-primary-black text-primary-grey-300 min-w-[227px] sticky right-0 h-full max-sm:hidden select-none overflow-y-auto">
+      <h3 className="px-5 pt-4 text-xs uppercase">Design</h3>
 
-      <div className="flex flex-1 flex-col overflow-y-auto">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-          <span className="text-sm font-semibold">Selector</span>
-          <span className="text-sm text-gray-400">
-            Inheriting{' '}
-            <span className="font-medium text-gray-900">2 selectors</span>{' '}
-          </span>
-        </div>
+      <span className="text-xs text-primary-grey-300 mt-3 px-5 border-b border-primary-grey-200 pb-4">
+        Make changes to canvas as you like
+      </span>
 
-        <div className="border-b border-gray-200 px-6 py-4">
-          <button className="flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 w-full px-3 py-1.5">
-            <div className="flex items-center gap-x-2">
-              <span className="rounded-lg bg-white p-1 shadow">
-                <MonitorIcon className="h-5 w-5 stroke-current text-blue-600" />
-              </span>
-              <span className="text-sm font-semibold rounded-lg text-blue-600 bg-blue-100 py-1 px-3">
-                H1 - Hero Title
-              </span>
-            </div>
+      <Dimensions
+        width={elementAttributes.width}
+        height={elementAttributes.height}
+        handleInputChange={handleInputChange}
+        isEditingRef={isEditingRef}
+      />
+      <Text
+        fontFamily={elementAttributes.fontFamily}
+        fontSize={elementAttributes.fontSize}
+        fontWeight={elementAttributes.fontWeight}
+        handleInputChange={handleInputChange}
+      />
+      <Color
+        inputRef={colorInputRef}
+        attribute={elementAttributes.fill}
+        attributeType="fill"
+        placeholder="color"
+        handleInputChange={handleInputChange}
+      />
+      <Color
+        inputRef={strokeInputRef}
+        attribute={elementAttributes.stroke}
+        attributeType="stroke"
+        placeholder="stroke"
+        handleInputChange={handleInputChange}
+      />
 
-            <ChevronDownIcon className="h-5 w-5 stroke-current text-gray-400" />
-          </button>
-
-          <div className="mt-2 text-xs text-gray-400">
-            1 on this page, 7 on other pages
-          </div>
-        </div>
-
-        <Accordion title="Layout">
-          <div className="flex items-center justify-between">
-            <button className="rounded-lg border border-gray-200 p-2 hover:bg-gray-100">
-              <AlignStartVerticalIcon className="h-5 w-5 stroke-current text-gray-400" />
-            </button>
-            <button className="rounded-lg border border-gray-200 p-2 hover:bg-gray-100">
-              <AlignCenterVerticalIcon className="h-5 w-5 stroke-current text-gray-400" />
-            </button>
-            <button className="rounded-lg border border-gray-200 p-2 hover:bg-gray-100">
-              <AlignEndVerticalIcon className="h-5 w-5 stroke-current text-gray-400" />
-            </button>
-
-            <button className="rounded-lg border border-gray-200 p-2 hover:bg-gray-100">
-              <AlignStartHorizontalIcon className="h-5 w-5 stroke-current text-gray-400" />
-            </button>
-            <button className="rounded-lg border border-gray-200 p-2 hover:bg-gray-100">
-              <AlignCenterHorizontalIcon className="h-5 w-5 stroke-current text-gray-400" />
-            </button>
-            <button className="rounded-lg border border-gray-200 p-2 hover:bg-gray-100">
-              <AlignEndHorizontalIcon className="h-5 w-5 stroke-current text-gray-400" />
-            </button>
-          </div>
-        </Accordion>
-
-        <Accordion title="Spacing">
-          <div className="relative flex items-center justify-center rounded-xl border-2 border-dashed border-gray-200 py-10 px-12">
-            <span className="absolute text-[10px] font-semibold uppercase text-gray-400 top-2 left-2">
-              margin
-            </span>
-            <span className="absolute text-[10px] font-semibold uppercase text-gray-400 bottom-12 right-14">
-              padding
-            </span>
-            <div className="relative w-full">
-              <div className="absolute flex flex-col -translate-y-1/2 top-0 gap-2 items-center justify-center inset-x-0">
-                <input
-                  className="h-4 w-4 text-sm text-center outline-none font-semibold"
-                  defaultValue={20}
-                  type="text"
-                />
-                <div className="h-2 w-2 border-2 border-blue-600 bg-white"></div>
-                <input
-                  className="h-4 w-4 text-sm text-center outline-none font-semibold"
-                  defaultValue={0}
-                  type="text"
-                />
-              </div>
-
-              <div className="absolute flex translate-x-1/2 right-0 gap-2 items-center justify-center inset-y-0">
-                <input
-                  className="h-4 w-4 text-sm text-center outline-none font-semibold"
-                  defaultValue={0}
-                  type="text"
-                />
-                <div className="h-2 w-2 border-2 border-blue-600 bg-white"></div>
-                <input
-                  className="h-4 w-4 text-sm text-center outline-none font-semibold"
-                  defaultValue={0}
-                  type="text"
-                />
-              </div>
-
-              <div className="absolute flex flex-col translate-y-1/2 bottom-0 gap-2 items-center justify-center inset-x-0">
-                <input
-                  className="h-4 w-4 text-sm text-center outline-none font-semibold"
-                  defaultValue={0}
-                  type="text"
-                />
-                <div className="h-2 w-2 border-2 border-blue-600 bg-white"></div>
-                <input
-                  className="h-4 w-4 text-sm text-center outline-none font-semibold"
-                  defaultValue={20}
-                  type="text"
-                />
-              </div>
-
-              <div className="absolute flex -translate-x-1/2 left-0 gap-2 items-center justify-center inset-y-0">
-                <input
-                  className="h-4 w-4 text-sm text-center outline-none font-semibold"
-                  defaultValue={20}
-                  type="text"
-                />
-                <div className="h-2 w-2 border-2 border-blue-600 bg-white"></div>
-                <input
-                  className="h-4 w-4 text-sm text-center outline-none font-semibold"
-                  defaultValue={0}
-                  type="text"
-                />
-              </div>
-
-              <div className="h-24 w-full rounded-xl border-2 border-blue-600 px-10 py-8">
-                <div className="h-full w-full rounded bg-gray-200"></div>
-              </div>
-            </div>
-          </div>
-        </Accordion>
-
-        <Accordion title="Size">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="relative">
-              <div className="absolute flex items-center inset-y-0 px-4 pointer-events-none">
-                <span className="text-sm text-gray-400">W</span>
-              </div>
-              <input
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2 text-right text-sm font-semibold leading-6"
-                type="text"
-                defaultValue="Auto"
-              />
-            </div>
-
-            <div className="relative">
-              <div className="absolute flex items-center inset-y-0 px-4 pointer-events-none">
-                <span className="text-sm text-gray-400">H</span>
-              </div>
-              <input
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2 text-right text-sm font-semibold leading-6"
-                type="text"
-                defaultValue="Auto"
-              />
-            </div>
-
-            <div className="relative">
-              <div className="absolute flex items-center inset-y-0 px-4 pointer-events-none">
-                <span className="text-sm text-gray-400">Min W</span>
-              </div>
-              <input
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2 text-right text-sm font-semibold leading-6"
-                type="text"
-                defaultValue="Auto"
-              />
-            </div>
-
-            <div className="relative">
-              <div className="absolute flex items-center inset-y-0 px-4 pointer-events-none">
-                <span className="text-sm text-gray-400">Min H</span>
-              </div>
-              <input
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2 text-right text-sm font-semibold leading-6"
-                type="text"
-                defaultValue="Auto"
-              />
-            </div>
-
-            <div className="relative">
-              <div className="absolute flex items-center inset-y-0 px-4 pointer-events-none">
-                <span className="text-sm text-gray-400">Max W</span>
-              </div>
-              <input
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2 text-right text-sm font-semibold leading-6"
-                type="text"
-                defaultValue="Auto"
-              />
-            </div>
-
-            <div className="relative">
-              <div className="absolute flex items-center inset-y-0 px-4 pointer-events-none">
-                <span className="text-sm text-gray-400">Max H</span>
-              </div>
-              <input
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2 text-right text-sm font-semibold leading-6"
-                type="text"
-                defaultValue="Auto"
-              />
-            </div>
-
-            <div className="col-span-2">
-              <button className="relative w-full rounded-xl border border-gray-200 bg-gray-50 py-2 pl-4 pr-10 text-right">
-                <div className="absolute inset-y-0 flex items-center px-4">
-                  <span className="text-sm text-gray-400">Overflow</span>
-                </div>
-                <span className="flex items-center justify-end gap-x-2 text-sm font-semibold">
-                  <EyeIcon className="h-5 w-5 stroke-current text-gray-400 leading-6" />
-                  <span>Invisible</span>
-                </span>
-                <div className="absolute inset-y-0 right-0 flex items-center px-4">
-                  <ChevronDownIcon className="h-5 w-5 stroke-current text-gray-400" />
-                </div>
-              </button>
-            </div>
-          </div>
-        </Accordion>
-        <Accordion title="Typography"></Accordion>
-        <Accordion title="Position"></Accordion>
-        <Accordion title="Border"></Accordion>
-        <Accordion title="Background"></Accordion>
-      </div>
+      <Export />
     </section>
   );
 };

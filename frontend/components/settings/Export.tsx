@@ -1,3 +1,4 @@
+import { exportToPdf } from '@/lib/utils';
 import { Button } from '../ui/button';
 
 const Export = () => (
@@ -6,6 +7,7 @@ const Export = () => (
     <Button
       variant="outline"
       className="w-full border border-primary-grey-100 hover:bg-primary-green hover:text-primary-black"
+      onClick={exportToPdf}
     >
       Export to PDF
     </Button>

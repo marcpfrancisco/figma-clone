@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import Room from './Room';
+import { TooltipProvider } from '@/components/ui';
 
 export const metadata: Metadata = {
   title: 'Website Builder',
@@ -16,7 +17,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="font-sans bg-primary-grey-200">
-        <Room>{children}</Room>
+        <Room>
+          <TooltipProvider>{children}</TooltipProvider>
+        </Room>
       </body>
     </html>
   );

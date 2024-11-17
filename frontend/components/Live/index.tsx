@@ -1,4 +1,11 @@
-import { useMyPresence, useOthers } from '@/liveblocks.config';
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from '@/components/ui/context-menu';
+import { shortcuts } from '@/constants';
+import { useMyPresence } from '@/liveblocks.config';
 import { CursorMode, CursorState } from '@/types/type';
 import { useCallback, useEffect, useState } from 'react';
 import CursorChat from '../Cursor/CursorChat';
@@ -6,10 +13,11 @@ import LiveCursors from '../Cursor/LiveCursors';
 
 type Props = {
   canvasRef: React.MutableRefObject<HTMLCanvasElement | null>;
+  undo: () => void;
+  redo: () => void;
 };
 
-const Live = ({ canvasRef }: Props) => {
-  const others = useOthers();
+const Live = ({ canvasRef, undo, redo }: Props) => {
   const [{ cursor }, updateMyPresence] = useMyPresence() as any;
   const [cursorState, setCursorState] = useState<CursorState>({
     mode: CursorMode.Hidden,
@@ -44,6 +52,29 @@ const Live = ({ canvasRef }: Props) => {
     });
   }, []);
 
+  const handleContextMenuClick = useCallback((key: string) => {
+    switch (key) {
+      case 'Chat':
+        setCursorState({
+          mode: CursorMode.Chat,
+          previousMessage: null,
+          message: '',
+        });
+        break;
+
+      case 'Undo':
+        undo();
+        break;
+
+      case 'Redo':
+        redo();
+        break;
+
+      default:
+        break;
+    }
+  }, []);
+
   useEffect(() => {
     const onKeyUp = (e: KeyboardEvent) => {
       if (e.key === '/') {
@@ -76,25 +107,40 @@ const Live = ({ canvasRef }: Props) => {
   }, [updateMyPresence]);
 
   return (
-    <div
-      id="canvas"
-      onPointerMove={handlePointerMove}
-      onPointerLeave={handlePointerLeave}
-      onPointerDown={handlePointerDown}
-      className="h-screen w-full flex justify-center items-center text-center "
-    >
-      <canvas ref={canvasRef} />
+    <ContextMenu>
+      <ContextMenuTrigger
+        id="canvas"
+        onPointerMove={handlePointerMove}
+        onPointerLeave={handlePointerLeave}
+        onPointerDown={handlePointerDown}
+        className="h-screen w-full flex justify-center items-center text-center "
+      >
+        <canvas ref={canvasRef} />
 
-      {cursor && (
-        <CursorChat
-          cursor={cursor}
-          cursorState={cursorState}
-          setCursorState={setCursorState}
-          updateMyPresence={updateMyPresence}
-        />
-      )}
-      <LiveCursors others={others} />
-    </div>
+        {cursor && (
+          <CursorChat
+            cursor={cursor}
+            cursorState={cursorState}
+            setCursorState={setCursorState}
+            updateMyPresence={updateMyPresence}
+          />
+        )}
+        <LiveCursors />
+      </ContextMenuTrigger>
+
+      <ContextMenuContent className="right-menu-content">
+        {shortcuts.map((item) => (
+          <ContextMenuItem
+            className="right-menu-item"
+            key={item.key}
+            onClick={() => handleContextMenuClick(item.name)}
+          >
+            <p>{item.name}</p>
+            <p className="text-xs text-gray-300">{item.shortcut}</p>
+          </ContextMenuItem>
+        ))}
+      </ContextMenuContent>
+    </ContextMenu>
   );
 };
 
