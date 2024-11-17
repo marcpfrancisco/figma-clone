@@ -1,7 +1,7 @@
 'use client';
 
 import Navbar from '@/components/Navbar';
-import Elements from '../Panels/Elements';
+import Elements from '../Panels/ShapesMenu';
 import LeftPanel from '../Panels/Sidebar';
 import RightPanel from '../Panels/Design';
 

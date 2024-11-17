@@ -1,68 +1,80 @@
-import {
-  ChevronDownIcon,
-  ChevronLeftIcon,
-  EyeIcon,
-  MonitorIcon,
-  PackageIcon,
-  RatioIcon,
-  SmartphoneIcon,
-} from 'lucide-react';
+'use client';
 
-const Navbar = () => {
+import Image from 'next/image';
+import { memo } from 'react';
+
+import { navElements } from '@/constants';
+import { ActiveElement, NavbarProps } from '@/types/type';
+import { NewThread } from '../Comments/NewThread';
+import ShapesMenu from '../Panels/ShapesMenu';
+import { Button } from '../ui';
+
+const Navbar = ({
+  activeElement,
+  imageInputRef,
+  handleImageUpload,
+  handleActiveElement,
+}: NavbarProps) => {
+  const isActive = (value: string | Array<ActiveElement>) =>
+    (activeElement && activeElement.value === value) ||
+    (Array.isArray(value) &&
+      value.some((val) => val?.value === activeElement?.value));
+
   return (
-    <>
-      <header className="flex h-18 items-center justify-center gap-x-6 border-b border-gray-200 bg-white px-8">
-        <button className="flex items-center justify-center rounded-xl bg-gray-100 p-2">
-          <ChevronLeftIcon className="h-6 w-6 stroke-current text-gray-400" />
-        </button>
+    <nav className="flex select-none items-center justify-between gap-4 bg-primary-black px-5 text-white">
+      <Image src="/assets/logo.svg" alt="FigPro Logo" width={58} height={20} />
 
-        <button className="flex flex-col rounded-xl border border-gray-200 bg-gray-100 px-6 py-2">
-          <div className="flex items-center gap-x-2">
-            <span className="text-sm font-semibold">
-              Page: Homepage - Welcome
-            </span>
-            <ChevronDownIcon className="h-5 w-5 stroke-current text-gray-400" />
-          </div>
-          <div className="text-xs text-gray-400">
-            https://domain.example.com/
-          </div>
-        </button>
-
-        <button className="flex items-center justify-center gap-x-2 rounded-xl bg-gray-100 px-4 py-2">
-          <EyeIcon className="w-6 h-6 stroke-current text-gray-400" />
-          <span className="text-sm font-semibold leading-6">Preview</span>
-        </button>
-
-        <div className="h-full w-px bg-gray-200" />
-        <div className="flex items-center gap-x-3">
-          {/* Desktop  */}
-          <button className="rounded-xl p-2 text-blue-600 bg-gray-100">
-            <MonitorIcon className="h-6 w-6 stroke-current" />
-          </button>
-
-          {/* Mobile  */}
-          <button className="rounded-xl p-2 text-gray-400 hover:bg-gray-100">
-            <SmartphoneIcon className="h-6 w-6 stroke-current" />
-          </button>
-
-          {/* Tablet Landscape  */}
-          <button className="rounded-xl p-2 text-gray-400 hover:bg-gray-100">
-            <RatioIcon className="h-6 w-6 stroke-current" />
-          </button>
-        </div>
-        <div className="h-full w-px bg-gray-200" />
-
-        <button className="flex items-center justify-center gap-x-3 rounded-xl bg-gray-100 px-4 py-2">
-          <span className="text-sm font-semibold leading-6">960 PX / 100%</span>
-          <ChevronDownIcon className="h-6 w-6 stroke-current text-gray-400" />
-        </button>
-
-        <button className="flex item-center justify-center rounded-xl bg-gray-100 p-2">
-          <PackageIcon className="h-6 w-6 stroke-current text-gray-400" />
-        </button>
-      </header>
-    </>
+      <ul className="flex flex-row">
+        {navElements.map((item: ActiveElement | any) => (
+          <li
+            key={item.name}
+            onClick={() => {
+              if (Array.isArray(item.value)) return;
+              handleActiveElement(item);
+            }}
+            className={`group px-2.5 py-5 flex justify-center items-center
+            ${isActive(item.value) ? 'bg-primary-green' : 'hover:bg-primary-grey-200'}
+            `}
+          >
+            {/* If value is an array means it's a nav element with sub options i.e., dropdown */}
+            {Array.isArray(item.value) ? (
+              <ShapesMenu
+                item={item}
+                activeElement={activeElement}
+                imageInputRef={imageInputRef}
+                handleActiveElement={handleActiveElement}
+                handleImageUpload={handleImageUpload}
+              />
+            ) : item?.value === 'comments' ? (
+              // If value is comments, trigger the NewThread component
+              <NewThread>
+                <Button className="relative w-5 h-5 object-contain">
+                  <Image
+                    src={item.icon}
+                    alt={item.name}
+                    fill
+                    className={isActive(item.value) ? 'invert' : ''}
+                  />
+                </Button>
+              </NewThread>
+            ) : (
+              <Button className="relative w-5 h-5 object-contain">
+                <Image
+                  src={item.icon}
+                  alt={item.name}
+                  fill
+                  className={isActive(item.value) ? 'invert' : ''}
+                />
+              </Button>
+            )}
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
 };
 
-export default Navbar;
+export default memo(
+  Navbar,
+  (prevProps, nextProps) => prevProps.activeElement === nextProps.activeElement,
+);

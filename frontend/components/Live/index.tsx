@@ -1,8 +1,8 @@
-import { useMyPresence, useOthers } from '@liveblocks/react';
-import LiveCursors from '../Cursor/LiveCursors';
+import { useMyPresence, useOthers } from '@/liveblocks.config';
+import { CursorMode, CursorState } from '@/types/type';
 import { useCallback, useEffect, useState } from 'react';
 import CursorChat from '../Cursor/CursorChat';
-import { CursorMode, CursorState } from '@/types/type';
+import LiveCursors from '../Cursor/LiveCursors';
 
 type Props = {
   canvasRef: React.MutableRefObject<HTMLCanvasElement | null>;
